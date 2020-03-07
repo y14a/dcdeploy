@@ -1,0 +1,31 @@
+[General]
+FullMachineName         = {{ inventory_hostname }}
+SuiteSpotUserID         = nobody
+SuiteSpotGroup          = nobody
+ConfigDirecotryLdapURL  = ldap://{{ inventory_hostname }}:389/o=NetscapeRoot
+AdminDomain             = {{ ansible_domain }}
+ConfigDirectoryAdminID  = {{ ds.config.admin.username }}
+ConfigDirectoryAdminPwd = {{ ds.config.admin.password }}
+ServerRoot              = /var/lib/ds
+
+[slapd]
+ServerPort        = {{ ds.server.port }}
+ServerIdentifier  = {{ inventory_hostname.split('.') | first }}
+Suffix            = {{ ['dc'] | product(ansible_domain.split('.')) | map('join', '=')  |  join(',') }}
+RootDN            = cn=Directory Manager
+RootDNPwd         = {{ ds.dn.root.password }}
+AddOrgEntries     = no
+AddSampleEntries  = no
+# InstallLdifFile  = 
+# SchemaFile       =
+# ConfigFile       =
+ds_bename         = {{ ansible_domain }}.db
+SlapdConfigForMC  = no
+UseExistingMC     = 0
+UseExistingUG     = 0
+
+[admin]
+SysUser        = nobody
+Port           = 9830
+ServerAdminID  = {{ ds.server.admin.username }}
+ServerAdminPwd = {{ ds.server.admin.password }}

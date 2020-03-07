@@ -1,0 +1,10 @@
+---
+
+- hosts: masters
+  become: yes
+  roles:
+    - docker
+    - kubernetes/etcd
+    - kubernetes/apiserver
+    - kubernetes/controller-manager
+    - kubernetes/scheduler

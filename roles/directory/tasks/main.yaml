@@ -1,0 +1,53 @@
+---
+
+- name: setup hostname
+  hostname: 
+    name: "{{ inventory_hostname }}"
+
+- name: set hostname to hosts file
+  lineinfile:
+    path: /etc/hosts
+    regexp: '{{ item }}'
+    line: '\1 {{ inventory_hostname }} \2'
+    backrefs: yes
+  with_items:
+    - '(^127.0.0.1) (?!{{ inventory_hostname }}) (.*)'
+    - '(^::1) (?!{{ inventory_hostname }}) (.*)'
+
+- name: check firewall status
+  command: systemctl is-active firewalld
+  register: firewalld
+  changed_when: False
+  ignore_errors: True
+
+- name: open domain server port
+  firewalld:
+    port: "{{ ds.server.port }}/tcp"
+    state: enabled
+    permanent: yes
+    immediate: yes
+  when: firewalld.stdout == "active"
+
+- name: install domain server package
+  yum:
+    name: 389-ds-base
+    state: installed
+
+- name: start domain server
+  systemd:
+    name: dirsrv.target
+    state: started
+    enabled: yes
+
+- name: check already initialized
+  stat:
+    path: "{{ initialization.file.path }}/{{ initialization.file.name }}"
+  register: inf_overwrite
+
+- name: copy install configuration
+  template:
+    src: install.inf.jinja2
+    dest: "{{ initialization.file.path }}/{{ initialization.file.name }}"
+  notify: 
+    - initialize domain server
+    - update domain server

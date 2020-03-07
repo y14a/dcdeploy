@@ -1,0 +1,9 @@
+---
+
+ds:
+  server:
+    port: 389
+initialization:
+  file:
+    path: /tmp
+    name: init.inf

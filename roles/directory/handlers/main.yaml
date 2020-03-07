@@ -1,0 +1,9 @@
+---
+
+- name: initialize domain server
+  command: setup-ds.pl -s -f "{{ initialization.file.path }}/{{ initialization.file.name }}"
+  when: not inf_overwrite.stat.exists
+
+- name: update domain server
+  command: setup-ds.pl -s --update -f "{{ initialization.file.path }}/{{ initialization.file.name }}"
+  when: inf_overwrite.stat.exists

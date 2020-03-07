@@ -1,0 +1,6 @@
+---
+
+- hosts: domainservers
+  become: yes
+  roles:
+    - directory
